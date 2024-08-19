@@ -38,7 +38,6 @@ int main()
 
         close(fd[0]);
         write(fd[1], buffer, sizeof(buffer));
-        close(fd[1]);
 
         exit(EXIT_SUCCESS);
     }
@@ -46,7 +45,6 @@ int main()
     {
         close(fd[1]);
         read(fd[0], buffer, sizeof(buffer));
-        close(fd[0]);
 
         printf("Factorial of %d = %d\n", buffer[0], buffer[1]);
 
