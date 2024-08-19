@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <sys/types.h>
-#include <string.h>
-#define MAX 100
+#include <sys/wait.h>
 
 int factorial(int n)
 {
@@ -13,25 +13,48 @@ int factorial(int n)
 
 int main()
 {
-    pid_t pid;
-    int fd[2];
+    int fd[2], buffer[2];
 
-    pipe(fd);
-
-    pid = fork();
-
-    if (pid == 0)
+    if (pipe(fd) == -1)
     {
-        printf("Child Process\n");
-        close(fd[1]);
-        read(fd[0], &n2, sizeof(int));
+        perror("Pipe Error");
+        exit(EXIT_FAILURE);
+    }
+
+    pid_t child_pid = fork();
+
+    if (child_pid < 0)
+    {
+        perror("Fork Failed");
+        exit(EXIT_FAILURE);
+    }
+    else if (child_pid == 0)
+    {
+        int n;
+        printf("Enter a number to calculate factorial -> ");
+        scanf("%d", &n);
+
+        buffer[0] = n, buffer[1] = factorial(n);
+
         close(fd[0]);
-        printf("n2 = %d\n", n2);
+        write(fd[1], buffer, sizeof(buffer));
+        close(fd[1]);
+
+        exit(EXIT_SUCCESS);
     }
     else
     {
-        close(fd[0]);
-        write(fd[1], &n1, sizeof(int));
         close(fd[1]);
+        read(fd[0], buffer, sizeof(buffer));
+        close(fd[0]);
+
+        printf("Factorial of %d = %d\n", buffer[0], buffer[1]);
+
+        int status;
+        waitpid(child_pid, &status, 0);
+        if (WIFEXITED(status))
+        {
+            printf("Child Process executed successfully.\n");
+        }
     }
 }

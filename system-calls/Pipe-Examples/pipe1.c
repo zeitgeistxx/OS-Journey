@@ -7,23 +7,34 @@
 
 int main()
 {
-    pid_t pid;
     int fd[2];
 
-    char s1[MAX] = "Hello pipe", s2[MAX];
+    if (pipe(fd) == -1)
+    {
+        perror("Pipe Error");
+        exit(EXIT_FAILURE);
+    }
 
-    pipe(fd);
+    char s1[MAX] = "HELLO FROM PARENT", s2[MAX];
 
     // When we use fork in any process, file descriptors remain open across child process and also parent process. Calling fork after creating a pipe, then the parent and child can communicate via the pipe.
-    pid = fork();
+    pid_t pid = fork();
 
-    if (pid == 0)
+    /* fd[1] is for writing to pipe
+     * fd[0] is for reading from pipe
+     */
+
+    if (pid < 0)
     {
-        printf("Child Process\n");
+        perror("Fork Failed");
+        exit(EXIT_FAILURE);
+    }
+    else if (pid == 0)
+    {
         close(fd[1]);
-        read(fd[0], s2, MAX);
+        read(fd[0], s2, sizeof(s2));
         close(fd[0]);
-        printf("s2 = %s\n", s2);
+        printf("Child --> %s\n", s2);
     }
     else
     {
