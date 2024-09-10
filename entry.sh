@@ -1,6 +1,6 @@
 insert() {
     read -p "Enter Roll, Name, and Marks..." roll name marks
-    echo "$roll|$name|$marks" >>student.txt
+    echo "$roll|$name|$marks" >> student.txt
 }
 display() {
     cat student.txt
