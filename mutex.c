@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#define THREAD_NUM 5
+#define THREAD_NUM 4
 
 int shared_variable = 0;
 
